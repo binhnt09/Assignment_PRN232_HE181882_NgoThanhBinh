@@ -1,0 +1,122 @@
+﻿@model IEnumerable<Assignment_1_FE.Models.Category>
+
+<h2>Quản lý Danh mục (Categories)</h2>
+<button class="btn btn-success mb-3" onclick="openCreateModal()">+ Thêm danh mục mới</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên danh mục</th>
+            <th>Mô tả</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CategoryId</td>
+                <td>@item.CategoryName</td>
+                <td>@item.CategoryDesciption</td>
+                <td>@(item.IsActive == true ? "Hoạt động" : "Ẩn")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="openEditModal(@item.CategoryId, '@item.CategoryName', '@item.CategoryDesciption', @(item.IsActive == true ? "true" : "false"))">Sửa</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(@item.CategoryId)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm Danh Mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtId" />
+                <div class="mb-3">
+                    <label>Tên danh mục</label>
+                    <input type="text" id="txtName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Mô tả</label>
+                    <input type="text" id="txtDesc" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Hoạt động</label>
+                    <input type="checkbox" id="chkActive" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Mở popup Thêm
+    function openCreateModal() {
+        document.getElementById('modalTitle').innerText = 'Thêm Danh Mục';
+        document.getElementById('txtId').value = 0;
+        document.getElementById('txtName').value = '';
+        document.getElementById('txtDesc').value = '';
+        document.getElementById('chkActive').checked = true;
+        new bootstrap.Modal(document.getElementById('categoryModal')).show();
+    }
+
+    // Mở popup Sửa
+    function openEditModal(id, name, desc, isActive) {
+        document.getElementById('modalTitle').innerText = 'Sửa Danh Mục';
+        document.getElementById('txtId').value = id;
+        document.getElementById('txtName').value = name;
+        document.getElementById('txtDesc').value = desc;
+        document.getElementById('chkActive').checked = isActive;
+        new bootstrap.Modal(document.getElementById('categoryModal')).show();
+    }
+
+    // Gửi dữ liệu AJAX (Lưu/Sửa)
+    function saveCategory() {
+        var id = parseInt(document.getElementById('txtId').value);
+        var data = {
+            CategoryId: id,
+            CategoryName: document.getElementById('txtName').value,
+            CategoryDesciption: document.getElementById('txtDesc').value,
+            IsActive: document.getElementById('chkActive').checked
+        };
+
+        var url = id === 0 ? '/Categories/Create' : '/Categories/Update';
+        var method = id === 0 ? 'POST' : 'PUT';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert("Có lỗi xảy ra khi lưu dữ liệu!");
+        });
+    }
+
+    // Chức năng Xóa (Bắt buộc Confirmation theo đề bài)
+    function deleteCategory(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+            fetch('/Categories/Delete?id=' + id, { method: 'DELETE' })
+            .then(async res => {
+                if (res.ok) location.reload();
+                else {
+                    let msg = await res.text();
+                    alert("Lỗi: " + msg); // Hiển thị lỗi nếu Backend cấm xóa
+                }
+            });
+        }
+    }
+</script>
+}
