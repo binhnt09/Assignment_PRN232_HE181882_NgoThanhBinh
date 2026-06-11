@@ -15,13 +15,11 @@ namespace Assignment_1.Controllers
         {
             _service = service;
         }
-
         [EnableQuery]
         public IActionResult Get()
         {
             return Ok(_service.GetAll());
         }
-
         [EnableQuery]
         public IActionResult Get([FromODataUri] short key)
         {
@@ -29,14 +27,12 @@ namespace Assignment_1.Controllers
             if (category == null) return NotFound();
             return Ok(category);
         }
-
         public IActionResult Post([FromBody] Category category)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             _service.Add(category);
             return Created(category);
         }
-
         public IActionResult Put([FromODataUri] short key, [FromBody] Category category)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -45,7 +41,6 @@ namespace Assignment_1.Controllers
             _service.Update(category);
             return Updated(category);
         }
-
         public IActionResult Delete([FromODataUri] short key)
         {
             bool isDeleted = _service.Delete(key);

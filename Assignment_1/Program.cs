@@ -3,51 +3,46 @@ using Assignment_1.Repositories;
 using Assignment_1.service;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. CẤU HÌNH EDM MODEL CHO ODATA
 var odataBuilder = new ODataConventionModelBuilder();
 odataBuilder.EntitySet<SystemAccount>("SystemAccounts").EntityType.HasKey(s => s.AccountId);
-IEdmModel GetEdmModel()
-{
-    odataBuilder.EntitySet<NewsArticle>("NewsArticles").EntityType.HasKey(n => n.NewsArticleId);
-    odataBuilder.EntitySet<Category>("Categories").EntityType.HasKey(c => c.CategoryId);
+odataBuilder.EntitySet<Category>("Categories").EntityType.HasKey(c => c.CategoryId);
+odataBuilder.EntitySet<NewsArticle>("NewsArticles").EntityType.HasKey(n => n.NewsArticleId);
+odataBuilder.EntitySet<Tag>("Tags").EntityType.HasKey(t => t.TagId);
+// (Khai báo thêm NewsArticles và Categories ở đây nếu có)
 
-    return odataBuilder.GetEdmModel();
-}
+// 2. ĐĂNG KÝ CONTROLLER + ODATA VÀO SERVICES
+builder.Services.AddControllers()
+    .AddOData(options =>
+        options.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
+               // Đăng ký tiền tố "odata" nối với Model
+               .AddRouteComponents("odata", odataBuilder.GetEdmModel())
+    );
 
-// Đăng ký DbContext với MS SQL Server
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// 3. ĐĂNG KÝ DB CONTEXT VÀ DI (Dependency Injection)
 builder.Services.AddDbContext<FunewsManagementContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddControllers().AddOData(options =>
-{
-    options.Select().Filter().OrderBy().Expand().Count().SetMaxTop(100)
-           .AddRouteComponents("odata", odataBuilder.GetEdmModel());
-});
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Đăng ký Generic Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-// Đăng ký các Services
+// ĐĂNG KÝ CÁC SERVICES Ở ĐÂY (BẠN ĐANG THIẾU 2 DÒNG DƯỚI)
 builder.Services.AddScoped<ISystemAccountService, SystemAccountService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>(); // Thêm dòng này
 builder.Services.AddScoped<INewsArticleService, NewsArticleService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 4. THỨ TỰ MIDDLEWARE (BẮT BUỘC PHẢI THEO THỨ TỰ NÀY)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -56,8 +51,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting(); // Bắt buộc phải có trước UseAuthorization
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers(); // Bắt buộc phải có để map các endpoint OData
 
 app.Run();

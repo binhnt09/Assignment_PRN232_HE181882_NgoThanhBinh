@@ -1,32 +1,32 @@
-using Assignment_1_FE.Models;
+﻿using Assignment_1_FE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Assignment_1_FE.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IHttpClientFactory clientFactory)
         {
-            _logger = logger;
+            _clientFactory = clientFactory;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var client = _clientFactory.CreateClient("ODataApi");
+            // OData Query: Lọc các bài viết Active (NewsStatus eq true) và lấy luôn thông tin Category ($expand)
+            var response = await client.GetAsync("NewsArticles?$filter=NewsStatus eq true&$expand=Category");
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ODataResponse<NewsArticle>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return View(data.Value);
+            }
+            return View(new List<NewsArticle>());
         }
     }
 }

@@ -52,5 +52,21 @@ namespace Assignment_1.Controllers
             if (!isDeleted) return NotFound();
             return NoContent();
         }
+        [HttpGet("odata/NewsArticles/Report")]
+        public IActionResult GetReport(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest("Ngày bắt đầu không thể lớn hơn ngày kết thúc.");
+            }
+
+            // Lấy bài viết trong khoảng thời gian và sắp xếp giảm dần (descending)
+            var reportData = _service.GetAll()
+                .Where(x => x.CreatedDate >= startDate && x.CreatedDate <= endDate)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToList();
+
+            return Ok(reportData);
+        }
     }
 }

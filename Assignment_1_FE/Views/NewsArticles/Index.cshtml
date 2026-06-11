@@ -1,0 +1,141 @@
+﻿@model IEnumerable<Assignment_1_FE.Models.NewsArticle>
+@{ ViewData["Title"] = "Quản lý Bài viết"; }
+
+<h2>Quản lý Bài viết (News Articles)</h2>
+<button class="btn btn-success mb-3" onclick="openModal('', '', '', '', '', '', true)">+ Thêm Bài Viết Mới</button>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tiêu đề</th>
+            <th>Danh mục</th>
+            <th>Nguồn</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NewsArticleId</td>
+                <td>@item.NewsTitle</td>
+                <td>@item.Category?.CategoryName</td>
+                <td>@item.NewsSource</td>
+                <td>@(item.NewsStatus == true ? "Hiển thị" : "Ẩn")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="openModal('@item.NewsArticleId', '@item.NewsTitle', '@item.Headline', '@item.NewsContent', '@item.NewsSource', '@item.CategoryId', @(item.NewsStatus == true ? "true" : "false"))">Sửa</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteArticle('@item.NewsArticleId')">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="articleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm/Sửa Bài Viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>ID Bài viết (Mã tin)</label>
+                        <input type="text" id="txtId" class="form-control" placeholder="VD: N01" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Danh mục</label>
+                        <select id="ddlCategory" class="form-control">
+                            @foreach (var cat in ViewBag.Categories)
+                            {
+                                <option value="@cat.CategoryId">@cat.CategoryName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Tiêu đề</label>
+                    <input type="text" id="txtTitle" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Tiêu đề phụ (Headline)</label>
+                    <input type="text" id="txtHeadline" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Nội dung</label>
+                    <textarea id="txtContent" class="form-control" rows="4"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label>Nguồn (Source)</label>
+                    <input type="text" id="txtSource" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <input type="checkbox" id="chkStatus" /> <label>Cho phép hiển thị (Active)</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveArticle()">Lưu Lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var isEdit = false;
+
+    function openModal(id, title, headline, content, source, categoryId, status) {
+        isEdit = id !== '';
+        document.getElementById('modalTitle').innerText = isEdit ? 'Sửa Bài Viết' : 'Thêm Bài Viết Mới';
+        
+        document.getElementById('txtId').value = id;
+        document.getElementById('txtId').disabled = isEdit; // Không cho sửa ID nếu đang Edit
+        document.getElementById('txtTitle').value = title;
+        document.getElementById('txtHeadline').value = headline;
+        document.getElementById('txtContent').value = content;
+        document.getElementById('txtSource').value = source;
+        document.getElementById('ddlCategory').value = categoryId;
+        document.getElementById('chkStatus').checked = status;
+        
+        new bootstrap.Modal(document.getElementById('articleModal')).show();
+    }
+
+    function saveArticle() {
+        var data = {
+            NewsArticleId: document.getElementById('txtId').value,
+            NewsTitle: document.getElementById('txtTitle').value,
+            Headline: document.getElementById('txtHeadline').value,
+            NewsContent: document.getElementById('txtContent').value,
+            NewsSource: document.getElementById('txtSource').value,
+            CategoryId: parseInt(document.getElementById('ddlCategory').value),
+            NewsStatus: document.getElementById('chkStatus').checked
+        };
+
+        var url = isEdit ? '/NewsArticles/Update' : '/NewsArticles/Create';
+        var method = isEdit ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert("Lỗi khi lưu dữ liệu. Vui lòng kiểm tra lại ID hoặc thông tin nhập.");
+        });
+    }
+
+    function deleteArticle(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+            fetch('/NewsArticles/Delete?id=' + id, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) location.reload();
+                else alert("Không thể xóa bài viết này.");
+            });
+        }
+    }
+</script>
+}

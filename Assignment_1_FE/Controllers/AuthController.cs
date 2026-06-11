@@ -55,7 +55,17 @@ namespace Assignment_1_FE.Controllers
                     HttpContext.Session.SetString("Email", user.AccountEmail);
                     HttpContext.Session.SetInt32("AccountId", user.AccountId);
 
-                    return RedirectToAction("Index", "Categories"); // Staff vào quản lý Category
+                    if (user.AccountRole == 1)
+                    {
+                        // role staff
+                        HttpContext.Session.SetString("Role", "Staff");
+                        return RedirectToAction("Index", "NewsArticles");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString("Role", "Lecturer");
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
             }
 

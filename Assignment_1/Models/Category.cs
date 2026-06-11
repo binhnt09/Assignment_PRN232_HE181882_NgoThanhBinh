@@ -1,10 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Assignment_1.Models;
 
 public partial class Category
 {
+    [Key]
     public short CategoryId { get; set; }
 
     public string CategoryName { get; set; } = null!;
@@ -16,7 +20,6 @@ public partial class Category
     public bool? IsActive { get; set; }
 
     public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
-
     public virtual ICollection<NewsArticle> NewsArticles { get; set; } = new List<NewsArticle>();
 
     public virtual Category? ParentCategory { get; set; }

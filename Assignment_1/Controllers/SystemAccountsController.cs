@@ -16,16 +16,12 @@ namespace Assignment_1.Controllers
             _service = service;
         }
 
-        // 1. Khai báo rõ đây là GET tất cả
-        [HttpGet]
         [EnableQuery]
         public IActionResult Get()
         {
             return Ok(_service.GetAll());
         }
 
-        // 2. Khai báo rõ đây là GET theo ID, có tham số {key} để Swagger phân biệt với hàm Get() ở trên
-        [HttpGet("({key})")]
         [EnableQuery]
         public IActionResult Get([FromODataUri] short key)
         {
@@ -34,8 +30,6 @@ namespace Assignment_1.Controllers
             return Ok(account);
         }
 
-        // 3. Khai báo rõ đây là POST (Thêm mới)
-        [HttpPost]
         public IActionResult Post([FromBody] SystemAccount account)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -43,8 +37,6 @@ namespace Assignment_1.Controllers
             return Created(account);
         }
 
-        // 4. Khai báo rõ đây là PUT (Cập nhật), có chứa {key} trên đường dẫn
-        [HttpPut("({key})")]
         public IActionResult Put([FromODataUri] short key, [FromBody] SystemAccount account)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -54,8 +46,6 @@ namespace Assignment_1.Controllers
             return Updated(account);
         }
 
-        // 5. Khai báo rõ đây là DELETE (Xóa), có chứa {key}
-        [HttpDelete("({key})")]
         public IActionResult Delete([FromODataUri] short key)
         {
             bool isDeleted = _service.Delete(key);

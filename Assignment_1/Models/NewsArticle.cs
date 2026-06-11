@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Assignment_1.Models;
 
 public partial class NewsArticle
 {
+    [Key]
     public string NewsArticleId { get; set; } = null!;
 
     public string? NewsTitle { get; set; }

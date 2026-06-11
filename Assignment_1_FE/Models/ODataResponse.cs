@@ -6,5 +6,7 @@ namespace Assignment_1_FE.Models
     {
         [JsonPropertyName("value")]
         public List<T> Value { get; set; }
+        [JsonPropertyName("@odata.count")]
+        public int? OdataCount { get; set; }
     }
 }

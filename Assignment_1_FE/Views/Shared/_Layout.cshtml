@@ -26,6 +26,37 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang Chủ Khách</a>
+                        </li>
+
+                        @{
+                            var role = Context.Session.GetString("Role");
+                        }
+
+                        @if (role == "Admin")
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" href="/SystemAccounts/Index">Quản lý Tài Khoản</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" href="/SystemAccounts/Report">Báo Cáo Thống Kê</a></li>
+                        }
+                        else if (role == "Staff")
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" href="/Categories/Index">Quản lý Danh Mục</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" href="/NewsArticles/Index">Quản lý Bài Viết</a></li>
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (!string.IsNullOrEmpty(role))
+                        {
+                            <li class="nav-item"><a class="nav-link text-danger" href="/Auth/Logout">Đăng Xuất (@role)</a></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link text-primary" href="/Auth/Login">Đăng Nhập</a></li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>

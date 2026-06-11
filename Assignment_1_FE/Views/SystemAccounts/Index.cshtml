@@ -1,0 +1,121 @@
+﻿@model IEnumerable<Assignment_1_FE.Models.SystemAccount>
+@{ ViewData["Title"] = "Quản lý Tài khoản (Admin)"; }
+
+<h2>Quản lý Tài Khoản Hệ Thống</h2>
+<button class="btn btn-success mb-3" onclick="openModal('', '', '', '', 1)">+ Thêm Tài Khoản</button>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên tài khoản</th>
+            <th>Email</th>
+            <th>Quyền (Role)</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AccountId</td>
+                <td>@item.AccountName</td>
+                <td>@item.AccountEmail</td>
+                <td>@(item.AccountRole == 1 ? "Staff" : "Khác")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="openModal('@item.AccountId', '@item.AccountName', '@item.AccountEmail', '@item.AccountPassword', @item.AccountRole)">Sửa</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAccount(@item.AccountId)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="accountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm/Sửa Tài Khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtId" />
+                <div class="mb-3">
+                    <label>Tên tài khoản</label>
+                    <input type="text" id="txtName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" id="txtEmail" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="txtPassword" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Phân quyền (Role)</label>
+                    <select id="ddlRole" class="form-control">
+                        <option value="1">Staff</option>
+                        <option value="2">Lecturer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveAccount()">Lưu Lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var isEdit = false;
+
+    function openModal(id, name, email, pass, role) {
+        isEdit = id !== '';
+        document.getElementById('modalTitle').innerText = isEdit ? 'Sửa Tài Khoản' : 'Thêm Tài Khoản';
+        
+        document.getElementById('txtId').value = id;
+        document.getElementById('txtName').value = name;
+        document.getElementById('txtEmail').value = email;
+        document.getElementById('txtPassword').value = pass;
+        document.getElementById('ddlRole').value = role;
+        
+        new bootstrap.Modal(document.getElementById('accountModal')).show();
+    }
+
+    function saveAccount() {
+        var idVal = document.getElementById('txtId').value;
+        var data = {
+            AccountId: idVal ? parseInt(idVal) : 0,
+            AccountName: document.getElementById('txtName').value,
+            AccountEmail: document.getElementById('txtEmail').value,
+            AccountPassword: document.getElementById('txtPassword').value,
+            AccountRole: parseInt(document.getElementById('ddlRole').value)
+        };
+
+        var url = isEdit ? '/SystemAccounts/Update' : '/SystemAccounts/Create';
+        var method = isEdit ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.ok) location.reload();
+            else alert("Lỗi khi lưu dữ liệu. Vui lòng kiểm tra lại Email có bị trùng không!");
+        });
+    }
+
+    function deleteAccount(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa tài khoản này? Sẽ không thể xóa nếu tài khoản này đã từng đăng bài viết.")) {
+            fetch('/SystemAccounts/Delete?id=' + id, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) location.reload();
+                else alert("Lỗi ràng buộc: Không thể xóa tài khoản đã tạo bài viết.");
+            });
+        }
+    }
+</script>
+}

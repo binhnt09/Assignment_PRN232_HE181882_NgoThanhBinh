@@ -1,8 +1,34 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Assignment_1_FE.Models.NewsArticle>
+@{
+    ViewData["Title"] = "Trang chủ Tin Tức";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-4">
+    <h1 class="display-4">Tin Tức Nổi Bật</h1>
+</div>
+
+<div class="row">
+    @if(Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <span class="badge bg-info mb-2">@item.Category?.CategoryName</span>
+                        <h5 class="card-title">@item.NewsTitle</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@item.Headline</h6>
+                        <p class="card-text text-truncate">@item.NewsContent</p>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <small class="text-muted">Ngày đăng: @item.CreatedDate?.ToString("dd/MM/yyyy")</small>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center"><p>Hiện tại chưa có tin tức nào.</p></div>
+    }
 </div>

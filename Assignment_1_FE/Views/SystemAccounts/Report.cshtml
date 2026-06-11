@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Assignment_1_FE.Models.NewsArticle>
+@{ ViewData["Title"] = "Báo Cáo Thống Kê"; }
+
+<h2>Báo Cáo Thống Kê Bài Viết (Admin)</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body bg-light">
+        <form method="post" action="/SystemAccounts/Report" class="row gx-3 gy-2 align-items-center">
+            <div class="col-sm-4">
+                <label>Từ ngày (Start Date):</label>
+                <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" required />
+            </div>
+            <div class="col-sm-4">
+                <label>Đến ngày (End Date):</label>
+                <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" required />
+            </div>
+            <div class="col-sm-4">
+                <label>&nbsp;</label><br />
+                <button type="submit" class="btn btn-primary w-100">Thống Kê Kéo Dữ Liệu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <h4 class="mt-4">Kết quả: Tìm thấy @Model.Count() bài viết</h4>
+    <table class="table table-bordered table-striped mt-2">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Ngày Đăng</th>
+                <th>Người tạo (ID)</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NewsArticleId</td>
+                    <td>@item.NewsTitle</td>
+                    <td>@item.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.CreatedById</td>
+                    <td>@(item.NewsStatus == true ? "Hiển thị" : "Ẩn")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ViewBag.StartDate != null)
+{
+    <div class="alert alert-warning">Không có bài viết nào trong khoảng thời gian này!</div>
+}
