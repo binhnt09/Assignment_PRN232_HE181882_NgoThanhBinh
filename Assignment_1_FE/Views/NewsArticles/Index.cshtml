@@ -2,6 +2,22 @@
 @{ ViewData["Title"] = "Quản lý Bài viết"; }
 
 <h2>Quản lý Bài viết (News Articles)</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <button class="btn btn-success" onclick="openModal('', '', '', '', '', '', true)">+ Thêm Bài Viết Mới</button>
+    </div>
+    <div class="col-md-6">
+        <form method="get" action="/NewsArticles/Index" class="d-flex">
+            <input type="text" name="searchTitle" class="form-control me-2" placeholder="Nhập từ khóa tiêu đề..." value="@ViewBag.SearchTitle" />
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            <a href="/NewsArticles/Index" class="btn btn-secondary ms-2">Reset</a>
+        </form>
+    </div>
+</div>
+@if(ViewBag.TotalRecords != null)
+{
+    <p class="text-muted">Tìm thấy tổng cộng <strong>@ViewBag.TotalRecords</strong> bài viết.</p>
+}
 <button class="btn btn-success mb-3" onclick="openModal('', '', '', '', '', '', true)">+ Thêm Bài Viết Mới</button>
 
 <table class="table table-bordered table-striped">
@@ -32,6 +48,29 @@
         }
     </tbody>
 </table>
+@if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center mt-4">
+            
+            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="/NewsArticles/Index?page=@(ViewBag.CurrentPage - 1)&searchTitle=@ViewBag.SearchTitle">Trang trước</a>
+            </li>
+
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="/NewsArticles/Index?page=@i&searchTitle=@ViewBag.SearchTitle">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="/NewsArticles/Index?page=@(ViewBag.CurrentPage + 1)&searchTitle=@ViewBag.SearchTitle">Trang sau</a>
+            </li>
+            
+        </ul>
+    </nav>
+}
 
 <div class="modal fade" id="articleModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
