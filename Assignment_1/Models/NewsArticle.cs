@@ -7,12 +7,18 @@ namespace Assignment_1.Models;
 public partial class NewsArticle
 {
     [Key]
-    public string NewsArticleId { get; set; } = null!;
+    [Required(ErrorMessage = "Mã bài viết không được để trống")]
+    [StringLength(20, ErrorMessage = "Mã bài viết không được vượt quá 20 ký tự")]
+    public string? NewsArticleId { get; set; }
 
+    [Required(ErrorMessage = "Tiêu đề không được để trống")]
+    [StringLength(400, ErrorMessage = "Tiêu đề quá dài")]
     public string? NewsTitle { get; set; }
 
-    public string Headline { get; set; } = null!;
+    [Required(ErrorMessage = "Tiêu đề phụ không được để trống")]
+    public string? Headline { get; set; }
 
+    [Required(ErrorMessage = "Ngày tạo không được để trống")]
     public DateTime? CreatedDate { get; set; }
 
     public string? NewsContent { get; set; }

@@ -144,11 +144,42 @@
     }
 
     function saveArticle() {
+        // 1. LẤY DỮ LIỆU TỪ CÁC Ô NHẬP LIỆU
+        var idVal = document.getElementById('txtId').value.trim();
+        var titleVal = document.getElementById('txtTitle').value.trim();
+        var headlineVal = document.getElementById('txtHeadline').value.trim();
+        var contentVal = document.getElementById('txtContent').value.trim();
+
+        // ==========================================
+        // 2. VALIDATE FRONT-END (BÁO LỖI BẰNG JAVASCRIPT)
+        // ==========================================
+        if (!idVal) {
+            alert("Vui lòng nhập Mã bài viết (ID)!");
+            document.getElementById('txtId').focus(); // Trỏ chuột lại ô lỗi
+            return; // Dừng lại, không chạy code bên dưới nữa
+        }
+        if (!titleVal) {
+            alert("Vui lòng nhập Tiêu đề bài viết!");
+            document.getElementById('txtTitle').focus();
+            return;
+        }
+        if (!headlineVal) {
+            alert("Vui lòng nhập Tiêu đề phụ (Headline)!");
+            document.getElementById('txtHeadline').focus();
+            return;
+        }
+        if (!contentVal) {
+            alert("Vui lòng nhập Nội dung bài viết!");
+            document.getElementById('txtContent').focus();
+            return;
+        }
+
+        // 3. NẾU VƯỢT QUA VALIDATE THÌ MỚI ĐÓNG GÓI DỮ LIỆU ĐỂ GỬI ĐI
         var data = {
-            NewsArticleId: document.getElementById('txtId').value,
-            NewsTitle: document.getElementById('txtTitle').value,
-            Headline: document.getElementById('txtHeadline').value,
-            NewsContent: document.getElementById('txtContent').value,
+            NewsArticleId: idVal,
+            NewsTitle: titleVal,
+            Headline: headlineVal,
+            NewsContent: contentVal,
             NewsSource: document.getElementById('txtSource').value,
             CategoryId: parseInt(document.getElementById('ddlCategory').value),
             NewsStatus: document.getElementById('chkStatus').checked
@@ -162,8 +193,11 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(res => {
-            if (res.ok) location.reload();
-            else alert("Lỗi khi lưu dữ liệu. Vui lòng kiểm tra lại ID hoặc thông tin nhập.");
+            if (res.ok) {
+                location.reload(); // Tải lại trang nếu thành công
+            } else {
+                alert("Lỗi từ Server: Dữ liệu không hợp lệ hoặc ID đã tồn tại!");
+            }
         });
     }
 
